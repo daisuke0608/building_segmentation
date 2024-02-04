@@ -14,6 +14,7 @@ class JaccardLoss(nn.Module):
     def forward(self, input, target):
         input = torch.softmax(input, dim=1)
         losses = 0
+        # print("input", "target", input.shape,target.shape)
         for i in range(1, input.shape[1]):  # background is not included
             ypr = input[:, i, :, :]
             ygt = target[:, i, :, :]
@@ -33,10 +34,12 @@ class DiceLoss(nn.Module):
     def forward(self, input, target):
         input = torch.softmax(input, dim=1)
         losses = 0
+        print("input", "target", input.shape,target.shape)
         for i in range(1, input.shape[1]):  # background is not included
             ypr = input[:, i, :, :]
             ygt = target[:, i, :, :]
             losses += 1 - metrics.iou(ypr, ygt)
+            # lo.append(torch.tensor(metrics.iou(ypr, ygt)))
         return losses
 
 

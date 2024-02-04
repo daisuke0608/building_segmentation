@@ -30,8 +30,9 @@ if __name__ == "__main__":
         if "/images/" in str(f) and f.name.endswith("pre_disaster.png")
     ]
     xbd_fullimgs = np.asarray(xbd_fullimgs)
+    print(xbd_fullimgs)
     xbd_missing = np.loadtxt(os.path.join(OEMDIR, "xbd_files.csv"), dtype=str, delimiter=",")
-
+    print(xbd_missing.shape)
     for f1, f2 in xbd_missing:
         idx = np.where(xbd_fullimgs[:, 0] == f1)[0]
 

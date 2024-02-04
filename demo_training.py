@@ -12,17 +12,18 @@ warnings.filterwarnings("ignore")
 if __name__ == "__main__":
     start = time.time()
 
-    OEM_DATA_DIR = "OpenEarthMap_Mini"
+    OEM_DATA_DIR = "OpenEarthMap_wo"
     TRAIN_LIST = os.path.join(OEM_DATA_DIR, "train.txt")
     VAL_LIST = os.path.join(OEM_DATA_DIR, "val.txt")
 
     IMG_SIZE = 512
-    N_CLASSES = 9
+    N_CLASSES = 2
     LR = 0.0001
     BATCH_SIZE = 4
-    NUM_EPOCHS = 50
+    NUM_EPOCHS = 100
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     OUTPUT_DIR = "outputs"
+    TASK = "building"
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     fns = [f for f in Path(OEM_DATA_DIR).rglob("*.tif") if "/images/" in str(f)]
@@ -50,12 +51,14 @@ if __name__ == "__main__":
         train_fns,
         n_classes=N_CLASSES,
         augm=train_augm,
+        task = TASK
     )
 
     val_data = open_earth_map.dataset.OpenEarthMapDataset(
         val_fns,
         n_classes=N_CLASSES,
         augm=val_augm,
+        task = TASK
     )
 
     train_data_loader = torch.utils.data.DataLoader(
@@ -72,7 +75,7 @@ if __name__ == "__main__":
         shuffle=False,
     )
 
-    network = open_earth_map.networks.UNet(in_channels=3, n_classes=N_CLASSES)
+    network = open_earth_map.networks.UNetFormer(in_channels=3, n_classes=N_CLASSES,backbone_name="seresnet152d")
     optimizer = torch.optim.Adam(network.parameters(), lr=LR)
     criterion = open_earth_map.losses.JaccardLoss()
 
@@ -102,7 +105,7 @@ if __name__ == "__main__":
                 model=network,
                 epoch=epoch,
                 best_score=max_score,
-                model_name="model2.pth",
+                model_name="unetformer_model_building_100.pth",
                 output_dir=OUTPUT_DIR,
             )
 

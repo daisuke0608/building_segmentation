@@ -11,9 +11,14 @@ def load_multiband(path: str):
     return (np.moveaxis(src.read(), 0, -1)).astype(np.uint8)
 
 
-def load_grayscale(path: str):
-    src = rasterio.open(path, "r")
-    return (src.read(1)).astype(np.uint8)
+def load_grayscale(path: str, task: str):
+    if task:
+        src = rasterio.open(path, "r")
+        src = src.read(1)
+        return np.where(src == 8, 1, np.where(src == 0, 0, 0)).astype(np.uint8)
+    else:
+        src = rasterio.open(path, "r")
+        return (src.read(1)).astype(np.uint8)
 
 
 class OpenEarthMapDataset(torch.utils.data.Dataset):
@@ -27,7 +32,7 @@ class OpenEarthMapDataset(torch.utils.data.Dataset):
         augm (Classes): transfromation pipeline (e.g. Rotate, Crop, etc.)
     """
 
-    def __init__(self, img_list: list, n_classes: int = 9, testing=False, augm=None):
+    def __init__(self, img_list: list, n_classes: int = 9, testing=False, augm=None, task = None):
         self.fn_imgs = [str(f) for f in img_list]
         self.fn_msks = [f.replace("images", "labels") for f in self.fn_imgs]
         self.augm = augm
@@ -37,12 +42,12 @@ class OpenEarthMapDataset(torch.utils.data.Dataset):
 
         self.load_multiband = load_multiband
         self.load_grayscale = load_grayscale
-
+        self.task = task
     def __getitem__(self, idx):
         img = Image.fromarray(self.load_multiband(self.fn_imgs[idx]))
 
         if not self.testing:
-            msk = Image.fromarray(self.load_grayscale(self.fn_msks[idx]))
+            msk = Image.fromarray(self.load_grayscale(self.fn_msks[idx], self.task))
         else:
             msk = Image.fromarray(np.zeros(img.size[:2], dtype="uint8"))
 
@@ -56,7 +61,6 @@ class OpenEarthMapDataset(torch.utils.data.Dataset):
                 img = img.resize((2**power_w, 2**power_h), resample=Image.BICUBIC)
                 msk = msk.resize((2**power_w, 2**power_h), resample=Image.NEAREST)
             data = {"image": img, "mask": msk}
-
         data = self.to_tensor(
             {
                 "image": np.array(data["image"], dtype="uint8"),

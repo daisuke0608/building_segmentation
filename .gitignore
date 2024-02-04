@@ -9,8 +9,15 @@ __pycache__/
 # Distribution / packaging
 .Python
 OpenEarthMap_Mini/
+OpenEarthMap_wo/
 predictions/
 outputs/
+pred/
+predictions_kasika/
+re_pre/
+uf_pred/
+geotiffs/
+mo/
 backups/
 *.pth
 build/

@@ -3,13 +3,13 @@ import numpy as np
 import torch
 
 class_rgb_oem = {
-    "unknown": [0, 0, 0],
-    "Bareland": [128, 0, 0],
-    "Grass": [0, 255, 36],
+    "unknown": [1, 1, 1],
+    "Bareland": [128, 1, 1],
+    "Grass": [2, 255, 36],
     "Pavement": [148, 148, 148],
     "Road": [255, 255, 255],
     "Tree": [34, 97, 38],
-    "Water": [0, 69, 255],
+    "Water": [3, 69, 255],
     "Cropland": [75, 181, 73],
     "buildings": [222, 31, 7],
 }

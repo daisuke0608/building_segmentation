@@ -67,12 +67,13 @@ def train_epoch(model, optimizer, criterion, dataloader, device="cpu"):
     logs = {}
 
     model.to(device).train()
-
+    l_iou = []
     iterator = tqdm(dataloader, desc="Train")
     for x, y, *_ in iterator:
         x = x.to(device).float()
         y = y.to(device).float()
         n = x.shape[0]
+        
 
         optimizer.zero_grad()
         outputs = model.forward(x)
